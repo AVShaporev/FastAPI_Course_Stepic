@@ -1,13 +1,46 @@
 from fastapi import FastAPI
-from fastapi.responses import  FileResponse, JSONResponse
+from fastapi.responses import JSONResponse
 
-from app.models.models import User
 
 app = FastAPI()
 
-# user: User = User(id=1, name="John Doe")
+sample_product_1 = {
+    "product_id": 123,
+    "name": "Smartphone",
+    "category": "Electronics",
+    "price": 599.99
+}
 
-# 
+sample_product_2 = {
+    "product_id": 456,
+    "name": "Phone Case",
+    "category": "Accessories",
+    "price": 19.99
+}
+
+sample_product_3 = {
+    "product_id": 789,
+    "name": "Iphone",
+    "category": "Electronics",
+    "price": 1299.99
+}
+
+sample_product_4 = {
+    "product_id": 101,
+    "name": "Headphones",
+    "category": "Accessories",
+    "price": 99.99
+}
+
+sample_product_5 = {
+    "product_id": 202,
+    "name": "Smartwatch",
+    "category": "Electronics",
+    "price": 299.99
+}
+
+sample_products = [sample_product_1, sample_product_2, sample_product_3, sample_product_4, sample_product_5]
+
 
 @app.get("/")
 # async def root():
@@ -15,22 +48,22 @@ app = FastAPI()
 def read_root():
     return {"message": "Hello World!!!"}
 
-# новыйй роут
-@app.get("/custom")
-def read_custom_message():
-    return {"message": "This is a custom message!!!"}
+@app.get("/product/{product_id}")
+def read_product(product_id: int):
+    for product in sample_products:
+        if product["product_id"] == product_id:
+            return JSONResponse(product)
+    return "Продукт с указанным id не найден!!!"
 
-# @app.get("/user")
-# def read_user():
-#     return JSONResponse(content=user.dict())
-
-# пример пользовательских данных (демонстрация)
-fake_users = {
-    1: {"username": "john_doe", "email": "john@example.com"},
-    2: {"username": "jane_smith", "email": "jane@example.com"},
-}
-
-# конечная точка для получения информации о пользователе
-@app.get("/users/{user_id}")
-def read_user(user_id: int):
-    return fake_users.get(user_id, {f"error: user with id - {user_id} not found"})
+@app.get("/products/search")
+def search_product(keyword, category=None, limit=10):
+    # return "Поиск продуктапо критерием в процессе..."
+    res_list = []
+    for product in sample_products:
+        if len(res_list) >= int(limit):
+            if len(res_list) == 0:
+                return "По указанным критериям поиска ни один продукт не подходит! Попробуйте изменить критерии поиска."
+            return JSONResponse(res_list)
+        if product["category"] == category and keyword in product["name"]:
+            res_list.append(product)
+    return JSONResponse(res_list)
